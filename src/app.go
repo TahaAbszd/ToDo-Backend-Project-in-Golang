@@ -5,6 +5,8 @@ import (
 	"todo/src/db"
 	"todo/src/routes"
 
+	// "todo/src/routes"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 )
@@ -21,5 +23,6 @@ func SetupApp() *fiber.App {
 		return c.SendString("Welcome to fiber app")
 	})
 	routes.AuthRoutes(app)
+	routes.TodoRoutes(app)
 	return app
 }
