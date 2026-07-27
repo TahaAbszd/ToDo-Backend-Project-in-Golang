@@ -12,4 +12,6 @@ func TodoRoutes(app *fiber.App) {
 
 	todo.Post("/", controller.CreateTodo)
 	todo.Get("/", controller.GetTodos)
+	todo.Delete("/:id", controller.DeleteTodo)
+	todo.Put("/:id", controller.UpdateTodo)
 }

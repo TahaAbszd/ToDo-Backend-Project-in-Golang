@@ -26,7 +26,24 @@ func RegisterUser(c *fiber.Ctx) error {
 	}
 
 	var existingUser models.User
-	_, err := db.DB.Collection("users").InsertOne(c.Context(), existingUser)
+	err := db.DB.Collection("users").FindOne(c.Context(), bson.M{
+		"email": body.Email}).Decode(&existingUser)
+	if err == nil {
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+			"error": "useralerady exists",
+		})
+	}
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "could not hash pass",
+		})
+	}
+	newUser := models.User{
+		Email:    body.Email,
+		Password: string(hashedPassword),
+	}
+	_, err = db.DB.Collection("users").InsertOne(c.Context(), newUser)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not create user"})
 
@@ -45,7 +62,7 @@ func LoginUser(c *fiber.Ctx) error {
 	}
 	var user models.User
 
-	err := db.DB.Collection("user").FindOne(c.Context(), bson.M{"email": body.Email}).Decode(&user)
+	err := db.DB.Collection("users").FindOne(c.Context(), bson.M{"email": body.Email}).Decode(&user)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid Credential"})
 	}
