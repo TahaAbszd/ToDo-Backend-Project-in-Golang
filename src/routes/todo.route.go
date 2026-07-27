@@ -11,5 +11,5 @@ func TodoRoutes(app *fiber.App) {
 	todo := app.Group("todo", middleware.AuthMiddleware)
 
 	todo.Post("/", controller.CreateTodo)
-	// todo.Get("/", controller.GetTodos)
+	todo.Get("/", controller.GetTodos)
 }
