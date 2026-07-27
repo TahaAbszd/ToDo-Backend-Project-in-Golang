@@ -71,3 +71,31 @@ func GetTodos(c *fiber.Ctx) error {
 		},
 	)
 }
+func DeleteTodo(c *fiber.Ctx) error {
+	todoId := c.Params("id")
+	userId := c.Locals("userId").(string)
+	objId, err := primitive.ObjectIDFromHex(todoId)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid todo id",
+		})
+	}
+	filter := bson.M{
+		"_id":    objId,
+		"userId": userId,
+	}
+	result, err := db.DB.Collection("todos").DeleteOne(c.Context(), filter)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "cannot delete todo",
+		})
+	}
+	if result.DeletedCount == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "todo not found",
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "todo deleted",
+	})
+}
