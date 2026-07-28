@@ -9,6 +9,6 @@ func main() {
 	app := src.SetupApp()
 
 	port := ":3001"
-	log.Println("Server is running on: " + " " + port)
+	log.Println("Server is running on ", port)
 	app.Listen(port)
 }
